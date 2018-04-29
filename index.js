@@ -20,6 +20,24 @@ const getJson = fullUrl => { // returns a promise
 }
 
 const getCommentsForPost = postId => getJson(`${baseUrl}/posts/${postId}/comments`)
+
+const renderItemsIntoTemplate = ({containerSelector, templateSelector, elementSelector, items = [ true ], callback}) => {
+  const template = document.querySelector(templateSelector)
+  const container = document.querySelector(containerSelector)
+  clearChildren(container)
+  items.forEach(item => {
+    const clone = template.content.cloneNode(true)
+    callback && callback(clone.querySelector(elementSelector), item)
+    container.appendChild(clone)
+  })
+}
+
+const updateInnerHtml = (DOMNode, updates)  => {
+  Object.keys(updates).forEach(selector => {
+    DOMNode.querySelectorAll(selector)[0].innerHTML = updates[selector]
+  })
+}
+
 const clearChildren = node => {
   while(node.hasChildNodes()) {
     node.removeChild(node.lastChild)
@@ -34,30 +52,46 @@ const state = {
 }
 
 const renderPagination = () => {
-  const paginationContainerTemplate= document.getElementById('pagination-container-template')
-  const template = document.getElementById('pagination-template')
-  const containers = document.querySelectorAll('#pagination-top, #pagination-bottom')
   const numberOfPages = Math.ceil(state.total/state.perPage)
   const currentPage = Math.ceil(state.first/state.perPage)
-  containers.forEach(_container => {
-    clearChildren(_container)
-    _container.appendChild(paginationContainerTemplate.content.cloneNode(true))
-    let container = _container.querySelector('.pagination')
-    for (let index = 1; index <= numberOfPages; index++) {
-      const node = template.content.cloneNode(true)
-      const pageNumberNode = node.querySelectorAll('.pagination-page-number')[0]
-      updateInnerHtml(pageNumberNode, {
-        'a': index,
-      })
-      node.firstElementChild.addEventListener('click', event => {
-        event.preventDefault()
-        goToPage(index)
-      })
-      if (index === currentPage) {
-        node.firstElementChild.classList.add('current-page')
-      }
-      container.appendChild(node)
+  const items = [...Array(numberOfPages).keys()].map(i => i+1)
+  const pageNumberRenderCallback = (element, index) => {
+    updateInnerHtml(element, {
+      'a': index,
+    })
+    element.firstElementChild.addEventListener('click', event => {
+      event.preventDefault()
+      goToPage(index)
+    })
+    if (index === currentPage) {
+      element.firstElementChild.classList.add('current-page')
     }
+  }
+
+  // top pagination
+  renderItemsIntoTemplate({
+    containerSelector: '#pagination-top',
+    templateSelector: '#pagination-container-template',
+  })
+  renderItemsIntoTemplate({
+    containerSelector: '#pagination-top .pagination',
+    templateSelector: '#pagination-template',
+    elementSelector: '.pagination-page-number',
+    items: items, 
+    callback: pageNumberRenderCallback,
+  })
+
+  // bottom pagination
+  renderItemsIntoTemplate({
+    containerSelector: '#pagination-bottom',
+    templateSelector: '#pagination-container-template',
+  })
+  renderItemsIntoTemplate({
+    containerSelector: '#pagination-bottom .pagination',
+    templateSelector: '#pagination-template',
+    elementSelector: '.pagination-page-number',
+    items: items, 
+    callback: pageNumberRenderCallback,
   })
 }
 
@@ -76,12 +110,6 @@ const getPosts = (first = 1, last = 100) => getJson(`${baseUrl}/posts`)
     renderPosts()
     renderPagination()
   })
-
-const updateInnerHtml = (DOMNode, updates)  => {
-  Object.keys(updates).forEach(selector => {
-    DOMNode.querySelectorAll(selector)[0].innerHTML = updates[selector]
-  })
-}
 
 const renderPosts = () => {
   const container = document.getElementById('posts-container')
@@ -105,36 +133,33 @@ const renderPosts = () => {
       '.body': post.body
     })
   })
-  // TODO: remove potential extra nodes
 }
-
-let commentTemplate
 
 const loadComments = event => {
   const postId = event.target.parentNode.getAttribute('data-post-id') // 'closest' has no IE
-  const domElement = document.querySelector(`[data-post-id="${postId}"]`)
-  const commentContainer = domElement.querySelector('.comment-container')
-  domElement.querySelector('button').disabled = true
-  domElement.classList.add('loading')
+  const postElement = document.querySelector(`[data-post-id="${postId}"]`)
+  const button = postElement.querySelector('[data-action="load-comments"]')
+  button.disabled = true
   getCommentsForPost(postId).then(comments => {
-    clearChildren(commentContainer)
-    domElement.querySelector('button').disabled = false
-    comments.forEach(comment => {
-      const clone = commentTemplate.content.cloneNode(true)
-      commentElement = clone.querySelector('.comment')
-      commentElement.setAttribute('data-comment-id', comment.id)
-      updateInnerHtml(commentElement, {
-        '.user-email': comment.email,
-        '.comment-body': comment.body,
-      })
-      commentContainer.appendChild(clone)
+    renderItemsIntoTemplate({
+      containerSelector: `[data-post-id="${postId}"] .comment-container`,
+      templateSelector: '#comment-template',
+      elementSelector: '.comment',
+      items: comments,
+      callback: (element, comment) => {
+        element.setAttribute('data-comment-id', comment.id)
+        updateInnerHtml(element, {
+          '.user-email': comment.email,
+          '.comment-body': comment.body,
+        })
+      }
     })
+    button.disabled = false
   }).catch(errorHandler)
 }
 
 const errorHandler = error => console.error(error)
 
 document.addEventListener('DOMContentLoaded', () => {
-  commentTemplate = document.getElementById('comment-template')
   getPosts(1, 10).catch(errorHandler)
 })

@@ -1,0 +1,3 @@
+.pagination { list-style: none; display: inline; }
+.pagination li { display: inline; }
+.current-page { background-color: gray; }
