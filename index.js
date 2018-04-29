@@ -33,11 +33,50 @@ const state = {
   total: undefined,
 }
 
+const getCurrentPage = () => Math.ceil(state.first/state.perPage)
+
+const renderPagination = () => {
+  const paginationContainerTemplate= document.getElementById('pagination-container-template')
+  const template = document.getElementById('pagination-template')
+  const containers = document.querySelectorAll('#pagination-top, #pagination-bottom')
+  const numberOfPages = Math.ceil(state.total/state.perPage)
+  const currentPage = getCurrentPage()
+  containers.forEach(_container => {
+    clearChildren(_container)
+    _container.appendChild(paginationContainerTemplate.content.cloneNode(true))
+    let container = _container.querySelector('.pagination')
+    for (let index = 1; index <= numberOfPages; index++) {
+      const node = template.content.cloneNode(true)
+      const pageNumberNode = node.querySelectorAll('.pagination-page-number')[0]
+      updateInnerHtml(pageNumberNode, {
+        'a': index,
+      })
+      node.firstElementChild.addEventListener('click', event => {
+        event.preventDefault()
+        goToPage(index)
+      })
+      if (index === currentPage) {
+        node.firstElementChild.classList.add('current-page')
+      }
+      container.appendChild(node)
+    }
+  })
+}
+
+const goToPage = newPageNumber => {
+  state.first = (newPageNumber - 1) * state.perPage + 1
+  state.last = newPageNumber * state.perPage
+  getPosts(state.first, state.last)
+}
+
 const getPosts = (first = 1, last = 100) => getJson(`${baseUrl}/posts`)
   .then(posts => {
+    state.first= first
+    state.last = last
     state.total = posts.length
     state.posts = posts.slice(first-1, last)
     renderPosts()
+    renderPagination()
   })
 
 const updateInnerHtml = (DOMNode, updates)  => {

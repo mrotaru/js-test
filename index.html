@@ -15,8 +15,17 @@
   </div></template>
   <template id="comment-template">
   </template>
+  <template id="pagination-container-template">
+    <style>
+      .pagination { list-style: none; display: inline; }
+      .pagination li { display: inline; }
+      .current-page { background-color: gray; }
+    </style>
+    <span>Page: </span>
+    <ul class="pagination"></ul>
+  </template>
   <template id="pagination-template">
-    <li class="pagination-page-number"><span /></li>
+    <li class="pagination-page-number"><a href="#"></a></li>
   </template>
 
   <header>
@@ -24,12 +33,12 @@
     <h3>Consume and present a JSON REST endpoint</h3>
   </header>
 
-  <section id="paging-top"><ul class="paging"></ul></section>
+  <section id="pagination-top"></section>
 
   <section id="posts-container">
   </section>
 
-  <section id="paging-bottom"><ul class="paging"></ul></section>
+  <section id="pagination-bottom"></section>
 
   <footer>
   </footer>
