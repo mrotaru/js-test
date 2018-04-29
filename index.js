@@ -96,12 +96,12 @@ const renderPosts = () => {
     }
     clearChildren(postElement.querySelector('.comment-container'))
     postElement.setAttribute('data-post-id', post.id)
+    const postId = post.id
+    postElement.removeEventListener('click', loadComments)
     postElement.querySelector('[data-action="load-comments"]')
-      .addEventListener('click', () => {
-        loadComments(post.id)
-      })
+      .addEventListener('click', loadComments)
     updateInnerHtml(postElement, {
-      '.title': post.title,
+      '.title': `${post.id}: ${post.title}`,
       '.body': post.body
     })
   })
@@ -110,7 +110,8 @@ const renderPosts = () => {
 
 let commentTemplate
 
-const loadComments = postId => {
+const loadComments = event => {
+  const postId = event.target.parentNode.getAttribute('data-post-id') // 'closest' has no IE
   const domElement = document.querySelector(`[data-post-id="${postId}"]`)
   const commentContainer = domElement.querySelector('.comment-container')
   domElement.querySelector('button').disabled = true
