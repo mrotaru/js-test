@@ -9,12 +9,21 @@
   <script src="index.js"></script>
 </head>
 <body>
+
   <template id="post-template"><div class="post">
     <h3 class="title"></h3>
     <p class="body"></p>
+    <button data-action="load-comments">Load Comments</button>
+    <div class="comment-container"></div>
   </div></template>
+
   <template id="comment-template">
+    <div class="comment">
+      <span class="user-email"></span>
+      <p class="comment-body"></p>
+    </div>
   </template>
+
   <template id="pagination-container-template">
     <style>
       .pagination { list-style: none; display: inline; }
@@ -24,6 +33,7 @@
     <span>Page: </span>
     <ul class="pagination"></ul>
   </template>
+
   <template id="pagination-template">
     <li class="pagination-page-number"><a href="#"></a></li>
   </template>

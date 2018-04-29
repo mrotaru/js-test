@@ -33,14 +33,12 @@ const state = {
   total: undefined,
 }
 
-const getCurrentPage = () => Math.ceil(state.first/state.perPage)
-
 const renderPagination = () => {
   const paginationContainerTemplate= document.getElementById('pagination-container-template')
   const template = document.getElementById('pagination-template')
   const containers = document.querySelectorAll('#pagination-top, #pagination-bottom')
   const numberOfPages = Math.ceil(state.total/state.perPage)
-  const currentPage = getCurrentPage()
+  const currentPage = Math.ceil(state.first/state.perPage)
   containers.forEach(_container => {
     clearChildren(_container)
     _container.appendChild(paginationContainerTemplate.content.cloneNode(true))
@@ -96,7 +94,12 @@ const renderPosts = () => {
       postElement.setAttribute('data-index', index)
       container.appendChild(clone)
     }
+    clearChildren(postElement.querySelector('.comment-container'))
     postElement.setAttribute('data-post-id', post.id)
+    postElement.querySelector('[data-action="load-comments"]')
+      .addEventListener('click', () => {
+        loadComments(post.id)
+      })
     updateInnerHtml(postElement, {
       '.title': post.title,
       '.body': post.body
@@ -105,8 +108,32 @@ const renderPosts = () => {
   // TODO: remove potential extra nodes
 }
 
+let commentTemplate
+
+const loadComments = postId => {
+  const domElement = document.querySelector(`[data-post-id="${postId}"]`)
+  const commentContainer = domElement.querySelector('.comment-container')
+  domElement.querySelector('button').disabled = true
+  domElement.classList.add('loading')
+  getCommentsForPost(postId).then(comments => {
+    clearChildren(commentContainer)
+    domElement.querySelector('button').disabled = false
+    comments.forEach(comment => {
+      const clone = commentTemplate.content.cloneNode(true)
+      commentElement = clone.querySelector('.comment')
+      commentElement.setAttribute('data-comment-id', comment.id)
+      updateInnerHtml(commentElement, {
+        '.user-email': comment.email,
+        '.comment-body': comment.body,
+      })
+      commentContainer.appendChild(clone)
+    })
+  }).catch(errorHandler)
+}
+
+const errorHandler = error => console.error(error)
+
 document.addEventListener('DOMContentLoaded', () => {
-  getPosts(1, 10).catch(err => {
-    console.error(err)
-  })
+  commentTemplate = document.getElementById('comment-template')
+  getPosts(1, 10).catch(errorHandler)
 })
