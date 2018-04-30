@@ -21,6 +21,9 @@ h5 {
   padding: 10px;
   margin-bottom: 0px;
 }
+.post .author {
+  font-weight: bold;
+}
 .post .body-container {
   background-color: #45bfb2;
   margin-top: 0px;

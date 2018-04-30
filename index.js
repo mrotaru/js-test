@@ -32,6 +32,10 @@ const renderItemsIntoTemplate = ({containerSelector, templateSelector, elementSe
   })
 }
 
+const serialPromsieFunctions = funcs =>
+  funcs.reduce((promise, func) =>
+    promise.then(result => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]))
+
 const updateInnerHtml = (DOMNode, updates)  => {
   Object.keys(updates).forEach(selector => {
     DOMNode.querySelectorAll(selector)[0].innerHTML = updates[selector]
@@ -114,7 +118,9 @@ const getPosts = (first = 1, last = 100) => getJson(`${baseUrl}/posts`)
 const renderPosts = () => {
   const container = document.getElementById('posts-container')
   const postTemplate = document.getElementById('post-template')
+  const authorPromiseGenerators = []
   state.posts.forEach((post, index) => {
+    authorPromiseGenerators.push(() => getJson(`${baseUrl}/users/${post.userId}`))
     let postElement = container.querySelectorAll(`[data-index="${index}"]`)[0]
     if (!postElement) {
       const clone = postTemplate.content.cloneNode(true)
@@ -131,6 +137,15 @@ const renderPosts = () => {
     updateInnerHtml(postElement, {
       '.title': `${post.id}: ${post.title}`,
       '.body': post.body
+    })
+  })
+  serialPromsieFunctions(authorPromiseGenerators).then(users => {
+    state.posts.forEach(post => {
+      const user = users.find(user => user.id === post.userId)
+      let postElement = container.querySelectorAll(`[data-post-id="${post.id}"]`)[0]
+      updateInnerHtml(postElement, {
+        '.author': user.username
+      })
     })
   })
 }
