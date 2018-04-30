@@ -1,3 +1,75 @@
-.pagination { list-style: none; display: inline; }
-.pagination li { display: inline; }
-.current-page { background-color: gray; }
+body {
+  background-color: #edf2f4;
+  font-family: "Noto Serif", serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Black Han Sans", sans-serif;
+  font-weight: normal;
+  color: #11201f;
+}
+
+.post {
+  box-shadow: 0px 5px 5px 0px rgba(50, 50, 50, 0.75);
+}
+.post h3 {
+  background-color: #dbab3b;
+  padding: 10px;
+  margin-bottom: 0px;
+}
+.post .body-container {
+  background-color: #45bfb2;
+  margin-top: 0px;
+  padding: 15px;
+}
+
+#pagination-bottom {
+  padding-top: 10px;
+}
+
+.pagination {
+  padding: 3px;
+  list-style: none;
+  display: inline;
+}
+
+.pagination li {
+  display: inline;
+}
+
+.current-page {
+  background-color: #dbab3b;
+  text-decoration: none;
+}
+
+body {
+  padding: 20px 40px;
+}
+
+.comment {
+  padding: 3px;
+}
+.comment a {
+  color: #45bfb2;
+}
+.comment p {
+  padding: 2px;
+  margin: 2px;
+}
+
+.comment-action {
+  width: 100%;
+}
+
+.comment-container {
+  background-color: rgb(236, 236, 236);
+  color: #11201f;
+  font-family: Arial;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+}

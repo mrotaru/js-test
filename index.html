@@ -6,21 +6,28 @@
   <title>JS Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+  <link href="https://fonts.googleapis.com/css?family=Black+Han+Sans|Noto+Serif" rel="stylesheet">
   <script src="index.js"></script>
 </head>
 <body>
 
   <template id="post-template"><div class="post">
     <h3 class="title"></h3>
-    <p class="body"></p>
-    <button data-action="load-comments">Load Comments</button>
+    <div class="body-container">
+      <p class="body"></p>
+      <button data-action="load-comments">Load Comments</button>
+    </div>
     <div class="comment-container"></div>
   </div></template>
 
   <template id="comment-template">
     <div class="comment">
-      <span class="user-email"></span>
-      <p class="comment-body"></p>
+      <p>
+        <span class="user-email-container">
+          <a class="user-email" href="#"></a>
+        </span>:
+        <span class="comment-body"></span>
+      </p>
     </div>
   </template>
 

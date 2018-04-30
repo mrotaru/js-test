@@ -136,7 +136,7 @@ const renderPosts = () => {
 }
 
 const loadComments = event => {
-  const postId = event.target.parentNode.getAttribute('data-post-id') // 'closest' has no IE
+  const postId = event.target.closest('.post').getAttribute('data-post-id') // 'closest' has no IE
   const postElement = document.querySelector(`[data-post-id="${postId}"]`)
   const button = postElement.querySelector('[data-action="load-comments"]')
   button.disabled = true
@@ -152,8 +152,10 @@ const loadComments = event => {
           '.user-email': comment.email,
           '.comment-body': comment.body,
         })
+        element.querySelector('a').setAttribute('href', `mailto:${comment.email}`)
       }
     })
+    // button.parentElement.removeChild(button)
     button.disabled = false
   }).catch(errorHandler)
 }
